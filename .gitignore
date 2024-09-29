@@ -1,0 +1,10 @@
+/.DS_Store
+/.vscode
+execution.log
+ip_addresses
+cpu_profile.prof
+heap_profile.prof
+cpu_profile.png
+cpu_profile.txt
+heap_profile.png
+heap_profile.txt
