@@ -44,35 +44,11 @@ After uncommenting and running `main.go`, two profiles will be created in the cu
 #### Generating Profiling Reports
 After the profiles are created, you can visualize them using the `pprof` tool. To do this, run the following commands:
 
-1. **Create a PNG file for the CPU profile**:
-
    ```bash
-   go tool pprof -png cpu_profile.prof > cpu_profile.png
+   go tool pprof -http=:8080 cpu_profile.prof
    ```
 
-   This command generates a call graph as an image file named `cpu_profile.png`.
-
-2. **Create a text report for the CPU profile**:
-
-   ```bash
-   go tool pprof -text cpu_profile.prof > cpu_profile.txt
-   ```
-
-   The text report `cpu_profile.txt` contains detailed information on function execution times and resource usage.
-
-3. **Create a PNG file for the memory (heap) profile**:
-
-   ```bash
-   go tool pprof -png heap_profile.prof > heap_profile.png
-   ```
-
-4. **Create a text report for the memory (heap) profile**:
-
-   ```bash
-   go tool pprof -text heap_profile.prof > heap_profile.txt
-   ```
-
-These reports will help visually analyze performance bottlenecks and optimize memory usage.
+   This report will help visually analyze performance bottlenecks and optimize CPU usage.
 
 #### Optimization Notes
 - The `main.go` code includes dynamic adaptation of the number of workers depending on the size of the input file.
@@ -102,10 +78,7 @@ The project allows flexible and efficient processing of very large files with IP
 3. **Profiling analysis (after uncommenting in `main.go`)**:
 
    ```bash
-   go tool pprof -png cpu_profile.prof > cpu_profile.png
-   go tool pprof -text cpu_profile.prof > cpu_profile.txt
-   go tool pprof -png heap_profile.prof > heap_profile.png
-   go tool pprof -text heap_profile.prof > heap_profile.txt
+   go tool pprof -http=:8080 cpu_profile.prof
    ```
 
 If you have any questions or suggestions for improving the code, feel free to make changes or create Issues on GitHub.
