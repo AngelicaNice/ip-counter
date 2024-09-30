@@ -29,17 +29,8 @@ Before running the main program, you need to create a test file with IP addresse
 Once the file with IP addresses is created, you can run the Go program to count the unique IP addresses:
 
 ```bash
-go run main.go
+go run cmd/ip-counter/main.go
 ```
-
-The program uses concurrency and automatically adjusts the number of workers based on the file size to ensure maximum performance.
-
-#### Enabling Profiling
-If you want to enable CPU and memory profiling, open the `main.go` file and uncomment the corresponding lines.
-
-After uncommenting and running `main.go`, two profiles will be created in the current directory:
-- `cpu_profile.prof` — CPU usage profile.
-- `heap_profile.prof` — memory usage profile.
 
 #### Generating Profiling Reports
 After the profiles are created, you can visualize them using the `pprof` tool. To do this, run the following commands:
@@ -49,36 +40,5 @@ After the profiles are created, you can visualize them using the `pprof` tool. T
    ```
 
    This report will help visually analyze performance bottlenecks and optimize CPU usage.
-
-#### Optimization Notes
-- The `main.go` code includes dynamic adaptation of the number of workers depending on the size of the input file.
-- If the file is small (less than 2 GB), only one worker is used to avoid excessive resource usage.
-- If necessary, you can modify the `baseChunkSize` to adjust the block size processed by each worker:
-
-  ```go
-  const baseChunkSize int64 = 2 * 1024 * 1024 * 1024  // 2 GB
-  ```
-
-#### Conclusion
-The project allows flexible and efficient processing of very large files with IP addresses by automatically adapting to the size of the input data and using concurrency. Enabling profiling and analyzing the reports will help you gain a deeper understanding of the program's performance and improve the data processing algorithms.
-
-### Commands for Running and Analysis
-1. **Creating a file with IP addresses**:
-
-   ```bash
-   python3 generator.py
-   ```
-
-2. **Running the main program**:
-
-   ```bash
-   go run main.go
-   ```
-
-3. **Profiling analysis (after uncommenting in `main.go`)**:
-
-   ```bash
-   go tool pprof -http=:8080 cpu_profile.prof
-   ```
 
 If you have any questions or suggestions for improving the code, feel free to make changes or create Issues on GitHub.
