@@ -29,6 +29,7 @@ Before running the main program, you need to create a test file with IP addresse
 Once the file with IP addresses is created, you can run the Go program to count the unique IP addresses:
 
 ```bash
+source .env
 go run cmd/ip-counter/main.go
 ```
 

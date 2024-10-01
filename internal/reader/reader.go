@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+const maxTailLen = 15
+
 type Reader struct {
 	FileName  string
 	ChunkSize int64
@@ -26,23 +28,54 @@ func (r *Reader) ReadChunks(ctx context.Context, taskChan chan<- []byte) error {
 	}
 	defer file.Close()
 
-	buf := make([]byte, r.ChunkSize)
 	defer close(taskChan)
+
+	leftOver := make([]byte, 0, maxTailLen)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			n, err := file.Read(buf)
+			buf := make([]byte, r.ChunkSize, r.ChunkSize+maxTailLen)
+			readBytes, err := file.Read(buf)
+
 			if err != nil && err != io.EOF {
 				return fmt.Errorf("failed to read file: %w", err)
 			}
-			if n == 0 {
+
+			if readBytes == 0 {
 				return nil
 			}
 
-			taskChan <- buf[:n]
+			buf = buf[:readBytes]
+
+			toSend := make([]byte, readBytes)
+			copy(toSend, buf)
+
+			//lastNewLineIndex := bytes.LastIndex(buf, []byte{'\n'})
+			lastNewLineIndex := findLastNewLine(buf)
+
+			toSend = append(leftOver, buf[:lastNewLineIndex+1]...)
+			leftOver = make([]byte, len(buf[lastNewLineIndex+1:]))
+			copy(leftOver, buf[lastNewLineIndex+1:])
+
+			taskChan <- toSend
 		}
 	}
+}
+
+func findLastNewLine(buf []byte) int {
+	searchRange := 16
+	if len(buf) < searchRange {
+		searchRange = len(buf)
+	}
+
+	for i := len(buf) - 1; i >= len(buf)-searchRange; i-- {
+		if buf[i] == '\n' {
+			return i
+		}
+	}
+
+	return -1
 }

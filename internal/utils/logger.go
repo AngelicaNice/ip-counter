@@ -19,5 +19,6 @@ func InitLogger(logFileName string, logLevel logrus.Level) *logrus.Logger {
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
+
 	return logger
 }

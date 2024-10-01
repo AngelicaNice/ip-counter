@@ -32,7 +32,6 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	logger.Info("Starting the application")
 	start := time.Now()
 
 	fileName := "ip_addresses"
@@ -44,10 +43,12 @@ func main() {
 	proc := processor.NewProcessor(logger, baseChunkSize)
 
 	var wg sync.WaitGroup
+
 	wg.Add(1)
 
 	go func() {
 		defer wg.Done()
+
 		if err := reader.ReadChunks(ctx, taskChan); err != nil {
 			logger.Fatalf("Reader failed: %v", err)
 		}
@@ -55,8 +56,10 @@ func main() {
 
 	for i := 0; i < runtime.GOMAXPROCS(0); i++ {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
+
 			for task := range taskChan {
 				proc.Process(ctx, task, resultChan)
 			}
@@ -69,10 +72,12 @@ func main() {
 	}()
 
 	finalHLL := hyperloglog.New()
+
 	for result := range resultChan {
 		if result.Err != nil {
 			logger.Fatalf("Processing error: %v", result.Err)
 		}
+
 		if err := finalHLL.Merge(result.HLL); err != nil {
 			logger.Fatalf("Error merging HyperLogLog results: %v", err)
 		}

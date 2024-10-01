@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"time"
 
 	"bufio"
 	"sync"
@@ -37,8 +36,6 @@ type Result struct {
 }
 
 func (p *Processor) Process(ctx context.Context, data []byte, resultChan chan<- Result) {
-	startTime := time.Now()
-
 	buf := p.Pool.Get().(*bytes.Buffer)
 	buf.Reset()
 	defer p.Pool.Put(buf)
@@ -47,15 +44,18 @@ func (p *Processor) Process(ctx context.Context, data []byte, resultChan chan<- 
 	scanner.Buffer(buf.Bytes(), int(p.ChunkSize))
 
 	hll := hyperloglog.New()
+
 	for scanner.Scan() {
 		select {
 		case <-ctx.Done():
 			p.Logger.Warn("Processor terminated by context.")
 			resultChan <- Result{nil, ctx.Err()}
+
 			return
 		default:
 			line := scanner.Bytes()
 			hll.Insert(line)
+			//hll.Insert(Compact(line))
 		}
 	}
 
@@ -64,6 +64,29 @@ func (p *Processor) Process(ctx context.Context, data []byte, resultChan chan<- 
 		return
 	}
 
-	p.Logger.Infof("Processed chunk in: %v", time.Since(startTime))
 	resultChan <- Result{HLL: hll, Err: nil}
+}
+
+//nolint:mnd
+func Compact(text []byte) []byte {
+	ipBytes := [4]byte{}
+	partIndex := 0
+	num := 0
+
+	for i := 0; i < len(text); i++ {
+		char := text[i]
+
+		switch char {
+		case '.':
+			ipBytes[partIndex] = byte(num)
+			partIndex++
+			num = 0
+		default:
+			num = num*10 + int(char-'0')
+		}
+	}
+
+	ipBytes[3] = byte(num)
+
+	return ipBytes[:]
 }

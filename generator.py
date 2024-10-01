@@ -13,7 +13,6 @@ def generate_ips_to_file(file_name, target_size):
         current_size = 0
         while current_size < target_size:
             ip_address = generate_random_ip() + "\n"
-            # Записываем IP в файл
             file.write(ip_address)
             current_size += len(ip_address)
             if current_size % (100 * 1024 * 1024) == 0:

@@ -41,11 +41,13 @@ func (p *Profiler) startCPUProfiling() {
 	if err != nil {
 		p.logger.Fatalf("Could not create CPU profile file: %v", err)
 	}
+
 	p.cpuFile = cpuFile
 
 	if err := pprof.StartCPUProfile(cpuFile); err != nil {
 		p.logger.Fatalf("Could not start CPU profiling: %v", err)
 	}
+
 	p.logger.Infof("CPU profiling started, results will be saved to: %s", cpuFileName)
 }
 
@@ -59,6 +61,7 @@ func (p *Profiler) startHeapProfiling() {
 	if err != nil {
 		p.logger.Fatalf("Could not create heap profile file: %v", err)
 	}
+
 	p.heapFile = heapFile
 
 	p.logger.Infof("Heap profiling enabled, results will be saved to: %s", heapFileName)

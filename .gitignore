@@ -1,5 +1,6 @@
 /.DS_Store
 /.vscode
+.golangci.yml
 execution.log
 ip_addresses
 cpu_profile.prof
