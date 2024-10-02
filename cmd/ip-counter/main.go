@@ -13,10 +13,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.uber.org/automaxprocs/maxprocs"
 
-	"ipaddresses/internal/processor"
-	"ipaddresses/internal/profiler"
-	"ipaddresses/internal/reader"
-	"ipaddresses/internal/utils"
+	"github.com/AngelicaNice/ip-counter/internal/file_reader"
+	"github.com/AngelicaNice/ip-counter/internal/processor"
+	"github.com/AngelicaNice/ip-counter/internal/profiler"
+	"github.com/AngelicaNice/ip-counter/internal/utils"
 )
 
 const baseChunkSize int64 = 64 * 1024 * 1024
@@ -39,7 +39,7 @@ func main() {
 	taskChan := make(chan []byte, runtime.GOMAXPROCS(0))
 	resultChan := make(chan processor.Result, runtime.GOMAXPROCS(0))
 
-	reader := reader.NewReader(fileName, baseChunkSize)
+	fileReader := file_reader.NewFileReader(fileName, baseChunkSize)
 	proc := processor.NewProcessor(logger, baseChunkSize)
 
 	var wg sync.WaitGroup
@@ -49,7 +49,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		if err := reader.ReadChunks(ctx, taskChan); err != nil {
+		if err := fileReader.ReadChunks(ctx, taskChan); err != nil {
 			logger.Fatalf("Reader failed: %v", err)
 		}
 	}()

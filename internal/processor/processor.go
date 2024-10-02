@@ -55,7 +55,8 @@ func (p *Processor) Process(ctx context.Context, data []byte, resultChan chan<- 
 		default:
 			line := scanner.Bytes()
 			hll.Insert(line)
-			//hll.Insert(Compact(line))
+			//Compact(&line)
+			//hll.Insert(line)
 		}
 	}
 
@@ -68,17 +69,16 @@ func (p *Processor) Process(ctx context.Context, data []byte, resultChan chan<- 
 }
 
 //nolint:mnd
-func Compact(text []byte) []byte {
-	ipBytes := [4]byte{}
+func Compact(ipBytes *[]byte) {
 	partIndex := 0
 	num := 0
 
-	for i := 0; i < len(text); i++ {
-		char := text[i]
+	for i := 0; i < len(*ipBytes); i++ {
+		char := (*ipBytes)[i]
 
 		switch char {
 		case '.':
-			ipBytes[partIndex] = byte(num)
+			(*ipBytes)[partIndex] = byte(num)
 			partIndex++
 			num = 0
 		default:
@@ -86,7 +86,6 @@ func Compact(text []byte) []byte {
 		}
 	}
 
-	ipBytes[3] = byte(num)
-
-	return ipBytes[:]
+	(*ipBytes)[partIndex] = byte(num)
+	*ipBytes = (*ipBytes)[:4]
 }

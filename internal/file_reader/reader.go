@@ -1,4 +1,4 @@
-package reader
+package file_reader
 
 import (
 	"context"
@@ -9,19 +9,19 @@ import (
 
 const maxTailLen = 15
 
-type Reader struct {
+type FileReader struct {
 	FileName  string
 	ChunkSize int64
 }
 
-func NewReader(fileName string, chunkSize int64) *Reader {
-	return &Reader{
+func NewFileReader(fileName string, chunkSize int64) *FileReader {
+	return &FileReader{
 		FileName:  fileName,
 		ChunkSize: chunkSize,
 	}
 }
 
-func (r *Reader) ReadChunks(ctx context.Context, taskChan chan<- []byte) error {
+func (r *FileReader) ReadChunks(ctx context.Context, taskChan chan<- []byte) error {
 	file, err := os.Open(r.FileName)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)

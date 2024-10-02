@@ -1,4 +1,4 @@
-module ipaddresses
+module github.com/AngelicaNice/ip-counter
 
 go 1.23.1
 

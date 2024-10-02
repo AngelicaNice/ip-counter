@@ -1,10 +1,11 @@
 package profiler
 
 import (
-	"ipaddresses/internal/utils"
 	"os"
 	"runtime/pprof"
 	"strings"
+
+	"github.com/AngelicaNice/ip-counter/internal/utils"
 
 	"github.com/sirupsen/logrus"
 )

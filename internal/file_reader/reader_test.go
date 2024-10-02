@@ -1,6 +1,7 @@
-package reader
+package file_reader
 
 import (
+	"bytes"
 	"context"
 	"os"
 	"reflect"
@@ -8,7 +9,9 @@ import (
 	"testing"
 )
 
-func getChunksFromReader(t *testing.T, reader *Reader) [][]byte {
+func getChunksFromReader(t *testing.T, fileReader *FileReader) [][]byte {
+	t.Helper()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -24,7 +27,7 @@ func getChunksFromReader(t *testing.T, reader *Reader) [][]byte {
 	go func() {
 		defer wg.Done()
 
-		if err := reader.ReadChunks(ctx, taskChan); err != nil {
+		if err := fileReader.ReadChunks(ctx, taskChan); err != nil {
 			errorChan <- err
 		}
 
@@ -50,20 +53,22 @@ func TestReadChunks_Normal(t *testing.T) {
 	file := createTempFile(t, content)
 	defer os.Remove(file.Name())
 
-	reader := NewReader(file.Name(), 19)
+	fileReader := NewFileReader(file.Name(), 19)
 
 	expectedChunks := [][]byte{
 		[]byte("192.168.1.1\n"),
 		[]byte("192.168.1.2\n192.168.1.3\n"),
 	}
 
-	actualChunks := getChunksFromReader(t, reader)
+	actualChunks := getChunksFromReader(t, fileReader)
 	if !reflect.DeepEqual(actualChunks, expectedChunks) {
 		t.Errorf("Expected chunks: %v, but got: %v", expectedChunks, actualChunks)
 	}
 }
 
 func createTempFile(t *testing.T, content string) *os.File {
+	t.Helper()
+
 	file, err := os.CreateTemp("", "testfile")
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
@@ -78,4 +83,18 @@ func createTempFile(t *testing.T, content string) *os.File {
 	}
 
 	return file
+}
+
+func BenchmarkBytesLastIndex(b *testing.B) {
+	data := []byte("192.168.1.1\n192.168.1.2\n192.168.1.3\n192.168.1.4\n192.168.1.5\n")
+	for i := 0; i < b.N; i++ {
+		bytes.LastIndex(data, []byte{'\n'})
+	}
+}
+
+func BenchmarkFindLastNewLine(b *testing.B) {
+	data := []byte("192.168.1.1\n192.168.1.2\n192.168.1.3\n192.168.1.4\n192.168.1.5\n")
+	for i := 0; i < b.N; i++ {
+		findLastNewLine(data)
+	}
 }
